@@ -18,17 +18,27 @@ export class HomeComponent implements OnInit {
     advancedCourses$: Observable<Course[]>;
 
 
-    constructor(private store:Store) {
+    constructor(private store: Store) {
 
     }
 
     ngOnInit() {
+        const http$ = createHttpObservable('api/courses');
+        const courses$: Observable<Course[]> = http$.pipe(
+            tap(() => console.log('Http request ex')),
+            map(res => Object.values(res['payload'])),
+            shareReplay()
+        );
 
-        const courses$ = this.store.courses$;
+        this.beginnerCourses$ = courses$
+        .pipe( map((courses) => courses
+        .filter(course => course.category === 'BEGINNER'))
+        );
 
-        this.beginnerCourses$ = this.store.selectBeginnerCourses();
-
-        this.advancedCourses$ = this.store.selectAdvancedCourses();
+        this.advancedCourses$ = courses$
+        .pipe( map((courses) => courses
+        .filter(course => course.category === 'ADVANCED'))
+        );
 
     }
 

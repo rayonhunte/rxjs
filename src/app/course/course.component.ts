@@ -26,7 +26,7 @@ import {Store} from '../common/store.service';
 })
 export class CourseComponent implements OnInit, AfterViewInit {
 
-    courseId:number;
+    courseId: number;
 
     course$ : Observable<Course>;
 
