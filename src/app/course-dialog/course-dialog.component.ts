@@ -17,7 +17,7 @@ export class CourseDialogComponent implements AfterViewInit {
 
     form: FormGroup;
 
-    course:Course;
+    course: Course;
 
     @ViewChild('saveButton') saveButton: ElementRef;
 
@@ -26,8 +26,8 @@ export class CourseDialogComponent implements AfterViewInit {
     constructor(
         private fb: FormBuilder,
         private dialogRef: MatDialogRef<CourseDialogComponent>,
-        @Inject(MAT_DIALOG_DATA) course:Course,
-        private store:Store) {
+        @Inject(MAT_DIALOG_DATA) course: Course,
+        private store: Store) {
 
         this.course = course;
 
@@ -40,8 +40,21 @@ export class CourseDialogComponent implements AfterViewInit {
 
     }
 
-    ngAfterViewInit() {
+    saveCourse(changes) {
+        return fromPromise(fetch(`http://localhost:9000/api/courses/${this.course.id}`, {
+            method: 'PUT',
+            body: JSON.stringify(changes),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }));
+    }
 
+    ngAfterViewInit() {
+        fromEvent(this.saveButton.nativeElement, 'click')
+        .pipe(
+            exhaustMap(() => this.saveCourse(this.form.value))
+        ).subscribe();
     }
 
     save() {
