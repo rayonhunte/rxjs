@@ -23,14 +23,33 @@ export class HomeComponent implements OnInit {
     }
 
     ngOnInit() {
-        const http$ = createHttpObservable('api/courses');
-        const courses$: Observable<Course[]> = http$.pipe(
-            tap(() => console.log('Http request ex')),
-            map(res => Object.values(res['payload'])),
-            shareReplay(),
-            retryWhen(errors => errors.pipe(
-                delayWhen(() => timer(2000))
-            ))
+        this.beginnerCourses$ = this.store.selectBeginnerCourses();
+        this.advancedCourses$ = this.store.selectAdvancedCourses();
+
+    }
+
+}
+
+
+// this.beginnerCourses$ = courses$
+// .pipe( map((courses) => courses
+// .filter(course => course.category === 'BEGINNER'))
+// );
+
+// this.advancedCourses$ = courses$
+// .pipe( map((courses) => courses
+// .filter(course => course.category === 'ADVANCED'))
+// );
+
+
+  // const http$ = createHttpObservable('api/courses');
+        // const courses$: Observable<Course[]> = http$.pipe(
+        //     tap(() => console.log('Http request ex')),
+        //     map(res => Object.values(res['payload'])),
+        //     shareReplay(),
+        //     retryWhen(errors => errors.pipe(
+        //         delayWhen(() => timer(2000))
+        //     ))
             // catch and replace
             // catchError(err => of([]))
             // -- re trow the error
@@ -39,18 +58,4 @@ export class HomeComponent implements OnInit {
             //     return throwError(err);
             // }),
             // finalize(() => console.log('final thing to do'))
-        );
-
-        this.beginnerCourses$ = courses$
-        .pipe( map((courses) => courses
-        .filter(course => course.category === 'BEGINNER'))
-        );
-
-        this.advancedCourses$ = courses$
-        .pipe( map((courses) => courses
-        .filter(course => course.category === 'ADVANCED'))
-        );
-
-    }
-
-}
+        //);

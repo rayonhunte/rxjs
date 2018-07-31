@@ -26,7 +26,25 @@ import { createHttpObservable } from '../common/util';
 export class AboutComponent implements OnInit {
 
     ngOnInit() {
-        // const source1$ = of(1, 2, 3);
+        const subject = new BehaviorSubject(0); // Subject();
+        const series$ = subject.asObservable();
+        series$.subscribe((val) => console.log('early sub', val));
+
+        subject.next(1);
+        subject.next(2);
+        subject.next(3);
+        subject.next(4);
+        // subject.complete();
+
+        setTimeout(() => {
+            series$.subscribe((val) => console.log('late sub', val));
+            subject.next(4);
+        }, 3000);
+    }
+}
+
+
+   // const source1$ = of(1, 2, 3);
         // const source2$ = of(4, 5, 6);
         // const source3$ = of(7, 8, 9);
         // const result$ = concat(source1$, source2$, source3$);
@@ -42,11 +60,9 @@ export class AboutComponent implements OnInit {
         // setTimeout(() => {
         //     sub.unsubscribe();
         // }, 5000);
-        const http$ = createHttpObservable('/api/courses');
-        const sub = http$.subscribe(console.log());
+        // const http$ = createHttpObservable('/api/courses');
+        // const sub = http$.subscribe(console.log());
 
-        setTimeout(() => {
-            sub.unsubscribe();
-        }, 5);
-    }
-}
+        // setTimeout(() => {
+        //     sub.unsubscribe();
+        // }, 5);
