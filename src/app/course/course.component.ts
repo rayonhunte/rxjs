@@ -11,9 +11,9 @@ import {
     concatMap,
     switchMap,
     withLatestFrom,
-    concatAll, shareReplay
+    concatAll, shareReplay, throttle, throttleTime, subscribeOn
 } from 'rxjs/operators';
-import {merge, fromEvent, Observable, concat} from 'rxjs';
+import {merge, fromEvent, Observable, concat, interval, forkJoin} from 'rxjs';
 import {Lesson} from '../model/lesson';
 import {createHttpObservable} from '../common/util';
 import {Store} from '../common/store.service';
@@ -42,17 +42,29 @@ export class CourseComponent implements OnInit, AfterViewInit {
     ngOnInit() {
 
         this.courseId = this.route.snapshot.params['id'];
-        this.course$ = createHttpObservable(`/api/courses/${this.courseId}`);
+        const course$ = createHttpObservable(`/api/courses/${this.courseId}`);
+        const lessons$ = this.loadLessons();
+        forkJoin(course$, lessons$)
+            .pipe (
+                tap( ([course, lessons]) => {
+                    console.log('course', course);
+                    console.log('lessons', lessons);
+                })
+            ).subscribe();
     }
 
     ngAfterViewInit() {
-        this.lessons$ = fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
-            map(event => event.target.value),
+       fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
+           tap(() => console.log('working')),
+           map(event => event.target.value),
             startWith(''),
-            debounceTime(200),
+            debounceTime(400),
+            // distinctUntilChanged(),
             distinctUntilChanged(),
             switchMap(search => this.loadLessons(search))
-        );
+            // throttle(() => interval(500))
+            // throttleTime(500)
+        ).subscribe(console.log);
     }
 
     loadLessons(search = ''): Observable<Lesson[]> {
